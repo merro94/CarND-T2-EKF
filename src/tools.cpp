@@ -17,25 +17,25 @@ VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
   */
   VectorXd rmse(4);
   rmse << 0,0,0,0;
+  if (estimations.size() == 0 || estimations.size() != ground_truth.size()) {
+    cout<< "Invalid estimations or ground truth data" << endl;
+    return rmse;
+  }
 
-	if (estimations.size() == 0 || estimations.size() != ground_truth.size()) {
-	    cout<< "Invalid estimations or ground truth data" << endl;
-	    return rmse;
-	}
+  //accumulate squared residuals
+  for (unsigned i = 0; i < estimations.size(); ++i) {
+    VectorXd v = estimations[i] - ground_truth[i];
+    rmse = rmse.array() + v.array()*v.array();
+  }
 
-	//accumulate squared residuals
-	for(unsigned i = 0; i < estimations.size(); ++i) {
-	    VectorXd v = estimations[i] - ground_truth[i];
-      rmse = rmse.array() + v.array()*v.array();
-	}
+  //calculate the mean
+  rmse = rmse.array()/estimations.size();
 
-	//calculate the mean
-	rmse = rmse.array()/estimations.size();
+  //calculate the squared root
+  rmse = rmse.array().sqrt();
 
-	//calculate the squared root
-	rmse = rmse.array().sqrt();
+  return rmse;
 
-	return rmse;
 }
 
 MatrixXd Tools::CalculateJacobian(const VectorXd& x_state) {
@@ -43,14 +43,14 @@ MatrixXd Tools::CalculateJacobian(const VectorXd& x_state) {
   TODO:
     * Calculate a Jacobian here.
   */
-	MatrixXd Hj(3,4);
-	//recover state parameters
-	float px = x_state(0);
-	float py = x_state(1);
-	float vx = x_state(2);
-	float vy = x_state(3);
-	
-	//compute the Jacobian matrix
+  MatrixXd Hj(3,4);
+  //recover state parameters
+  float px = x_state(0);
+  float py = x_state(1);
+  float vx = x_state(2);
+  float vy = x_state(3);
+
+  //compute the Jacobian matrix
 
   float c1 = px*px + py*py;
   float c2 = sqrt(c1);
@@ -67,5 +67,5 @@ MatrixXd Tools::CalculateJacobian(const VectorXd& x_state) {
         -(py/c1), (px/c1), 0, 0,
         py*(vx*py - vy*px)/c3, px*(px*vy - py*vx)/c3, px/c2, py/c2;
 
-	return Hj;
+  return Hj;
 }
